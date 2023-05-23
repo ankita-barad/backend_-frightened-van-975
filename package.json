@@ -18,5 +18,8 @@
     "nodemon": "^2.0.22",
     "bcrypt": "^5.1.0",
     "jsonwebtoken": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=14 <15"
   }
 }
