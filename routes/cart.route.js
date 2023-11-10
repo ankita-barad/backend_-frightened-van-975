@@ -47,8 +47,6 @@ cartRoute.patch("/:cartId/quantity", auth, async (req, res) => {
     const { cartId } = req.params;
     const { quantity, productId } = req.body;
 
-    console.log(cartId);
-
     const cart = await CartModel.findById({ _id: cartId });
 
     if (cart) {
@@ -68,8 +66,6 @@ cartRoute.patch("/:cartId/quantity", auth, async (req, res) => {
         .populate("products.product")
         .populate("user");
 
-      console.log(savedCart);
-
       res.send(savedCart);
     }
 
@@ -87,6 +83,39 @@ cartRoute.get("/", auth, async (req, res) => {
     .populate("user");
 
   res.send(cart);
+});
+
+// https://jewelslane.onrender.com/cart/654e154b452cc5b971596863/product/64551a30ab6a363b3c0ef7d6
+
+//delete a particular cart
+cartRoute.delete("/:cartId/product/:productId", auth, async (req, res) => {
+  try {
+    const { cartId, productId } = req.params;
+
+    // Find the cart by cartId
+    const cart = await CartModel.findById(cartId);
+
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    // Remove the product with the given productId from the cart
+    const updatedProducts = cart.products.filter(
+      (p) => p.product.toString() !== productId
+    );
+
+    // Update the cart with the new product list
+    const updatedCart = await CartModel.findByIdAndUpdate(cartId, {
+      $set: {
+        products: updatedProducts,
+      },
+    });
+
+    res.status(200).json(updatedCart);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
 
 module.exports = { cartRoute };
